@@ -29,4 +29,61 @@ Badger OS is built on a strict "Defense-in-Depth" security model, combining soft
 
 ## 🚀 Getting Started
 
-*(Instructions for building and booting via SD card on your target hardware will go here as development progresses.)*
+### 1. Prerequisites (Ubuntu / Debian)
+
+To build and emulate Badger OS (`AArch64 / ARMv8-A`) on an Ubuntu host, install the QEMU system emulator and multi-architecture GDB debugger:
+
+```bash
+sudo apt update
+sudo apt install qemu-system-arm gdb-multiarch
+```
+
+*(Note: The `qemu-system-arm` package includes the 64-bit `qemu-system-aarch64` binary).*
+
+### 2. Rust Toolchain Setup
+
+Add the bare-metal `AArch64` target and LLVM binary utilities to your Rust toolchain:
+
+```bash
+# Add the bare-metal 64-bit ARM target
+rustup target add aarch64-unknown-none
+
+# Install LLVM tools for inspecting ELF binaries and generating raw kernel images
+rustup component add llvm-tools-preview
+cargo install cargo-binutils
+```
+
+### 3. Emulating with QEMU
+
+#### Generic `virt` Machine (Recommended for Kernel Development)
+Emulates a generic ARMv8-A virtual board (`Cortex-A72`, GIC, PL011 UART, MMU):
+
+```bash
+qemu-system-aarch64 \
+  -M virt \
+  -cpu cortex-a72 \
+  -smp 4 \
+  -m 512M \
+  -nographic \
+  -kernel target/aarch64-unknown-none/debug/badger-kernel
+```
+*(Press `Ctrl+A` then `X` to exit QEMU).*
+
+#### Raspberry Pi Emulation (`raspi3b` / `raspi4b`)
+To test Raspberry Pi-specific peripherals (GPIO, Mini-UART / PL011, Mailbox):
+
+```bash
+qemu-system-aarch64 \
+  -M raspi3b \
+  -serial null -serial stdio \
+  -display none \
+  -kernel kernel8.img
+```
+
+### 4. Debugging with GDB
+
+Append `-S -s` to your QEMU command to pause execution at startup and open a GDB server on port `1234`, then connect from a second terminal:
+
+```bash
+gdb-multiarch target/aarch64-unknown-none/debug/badger-kernel -ex "target remote :1234"
+```
