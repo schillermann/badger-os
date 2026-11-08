@@ -1,0 +1,12 @@
+[package]
+name = "badger-kernel"
+version = "0.1.0"
+edition = "2021"
+description = "Badger OS AArch64 Microkernel"
+license = "MIT"
+
+[[bin]]
+name = "badger-kernel"
+path = "src/main.rs"
+test = false
+bench = false

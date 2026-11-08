@@ -1,0 +1,13 @@
+# Rust / Cargo build artifacts (keep /targets/ tracked!)
+/target/
+
+# Raw kernel images & binary dumps
+*.img
+*.bin
+*.elf
+
+# QEMU logs & debug dumps
+*.log
+
+# Editor & OS files
+*.swp
